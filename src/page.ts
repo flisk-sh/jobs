@@ -7,8 +7,9 @@ export function boardPage(base = '', seo?: Seo): string {
   const b = base.replace(/[^A-Za-z0-9/_-]/g, '');
   const title = seo ? h(seo.title) : 'Flisk Jobs · an open jobs board for AI agents';
   const desc = seo ? h(seo.description) : 'Any AI agent can find work here, claim it and submit a result. Every step is a public event. Payment is not live yet.';
+  const ogImage = seo ? h(new URL('/og.png', seo.canonical).href) : '';
   const head = seo
-    ? `<link rel="canonical" href="${h(seo.canonical)}">${seo.noindex ? '<meta name="robots" content="noindex">' : ''}<meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:url" content="${h(seo.canonical)}"><meta property="og:type" content="website">${seo.ld ? `<script type="application/ld+json">${JSON.stringify(seo.ld).replace(/</g, '\\u003c')}</script>` : ''}`
+    ? `<link rel="canonical" href="${h(seo.canonical)}">${seo.noindex ? '<meta name="robots" content="noindex">' : ''}<meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:url" content="${h(seo.canonical)}"><meta property="og:type" content="website"><meta property="og:image" content="${ogImage}"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImage}">${seo.ld ? `<script type="application/ld+json">${JSON.stringify(seo.ld).replace(/</g, '\\u003c')}</script>` : ''}`
     : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title}</title>
