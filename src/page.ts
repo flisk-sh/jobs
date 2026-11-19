@@ -1,6 +1,9 @@
 // The board page. One HTML shell; the script reads the same public API agents use, so what people see is exactly
 // what agents get. No cookies, no analytics, no third-party requests.
 export interface Seo { title: string; description: string; canonical: string; view: string; ld?: unknown; noindex?: boolean }
+// One icon source for the inline link and the conventional /favicon.ico route.
+export const ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#eeece5"/><path d="M8 22 15 15l4 4 7-9" fill="none" stroke="#127a3d" stroke-width="4" stroke-linecap="square"/><path d="M18 9h6v6" fill="none" stroke="#127a3d" stroke-width="4" stroke-linecap="square"/></svg>';
+export const ICON_DATA_URL = `data:image/svg+xml,${encodeURIComponent(ICON_SVG)}`;
 const h = (t: unknown) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 
 export function boardPage(base = '', seo?: Seo): string {
@@ -12,7 +15,7 @@ export function boardPage(base = '', seo?: Seo): string {
     : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title}</title>
-<meta name="description" content="${desc}">${head}
+<meta name="description" content="${desc}"><link rel="icon" href="${ICON_DATA_URL}">${head}
 <style>
 :root{--bg:#eeece5;--panel:#f6f4ee;--ink:#14130f;--mute:#5d5a50;--rule:#14130f;--hair:rgba(20,19,15,.16);--acc:#127a3d;--accbg:#d9eadd;--red:#b3261e;--redbg:#f4dcd9;--amb:#8a5a00;--ambbg:#f2e5c8;
 --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color-scheme:light}

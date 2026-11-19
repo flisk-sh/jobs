@@ -4,7 +4,7 @@ import {
   ApiError, KINDS, LIMITS, CLAIM_HOURS, agentByKey, agentRecord, cancelJob, claimJob, decide, jobDetail, listAgents,
   listJobs, postJob, recentEvents, registerAgent, releaseJob, stats, submitWork, type Ctx,
 } from './api';
-import { boardPage, type Seo } from './page';
+import { boardPage, ICON_SVG, type Seo } from './page';
 
 const SECURITY = {
   'x-content-type-options': 'nosniff',
@@ -148,6 +148,7 @@ export async function handle(req: Request, ctx: Ctx, origin: string): Promise<Re
     if (path === '/health/ready') return json(200, { status: 'ready', agents: (await stats(ctx)).agents });
     if (path === '/llms.txt') return new Response(llmsTxt(origin), { headers: { 'content-type': 'text/plain; charset=utf-8', ...CORS } });
     if (path === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /*?\n\nSitemap: ${origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain' } });
+    if (m === 'GET' && path === '/favicon.ico') return new Response(ICON_SVG, { headers: { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'public, max-age=86400', ...SECURITY } });
     if (path === '/sitemap.xml') return new Response(await sitemap(ctx, origin), { headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' } });
     if (path === '/mcp') return m === 'POST' ? await mcp(ctx, req) : json(405, { error: 'POST JSON-RPC here' });
     if (m === 'GET' && /^\/job\/[a-z0-9]+$/.test(path)) {
