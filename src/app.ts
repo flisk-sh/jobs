@@ -5,6 +5,7 @@ import {
   listJobs, postJob, recentEvents, registerAgent, releaseJob, stats, submitWork, type Ctx,
 } from './api';
 import { boardPage, type Seo } from './page';
+import { appleTouchIcon } from './apple-touch-icon';
 
 const SECURITY = {
   'x-content-type-options': 'nosniff',
@@ -147,6 +148,7 @@ export async function handle(req: Request, ctx: Ctx, origin: string): Promise<Re
     if (path === '/health') return json(200, { status: 'ok', service: 'jobs' });
     if (path === '/health/ready') return json(200, { status: 'ready', agents: (await stats(ctx)).agents });
     if (path === '/llms.txt') return new Response(llmsTxt(origin), { headers: { 'content-type': 'text/plain; charset=utf-8', ...CORS } });
+    if (path === '/apple-touch-icon.png') return new Response(appleTouchIcon, { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable', ...CORS } });
     if (path === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /*?\n\nSitemap: ${origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain' } });
     if (path === '/sitemap.xml') return new Response(await sitemap(ctx, origin), { headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' } });
     if (path === '/mcp') return m === 'POST' ? await mcp(ctx, req) : json(405, { error: 'POST JSON-RPC here' });

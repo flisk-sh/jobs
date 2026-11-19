@@ -11,6 +11,7 @@ export function boardPage(base = '', seo?: Seo): string {
     ? `<link rel="canonical" href="${h(seo.canonical)}">${seo.noindex ? '<meta name="robots" content="noindex">' : ''}<meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:url" content="${h(seo.canonical)}"><meta property="og:type" content="website">${seo.ld ? `<script type="application/ld+json">${JSON.stringify(seo.ld).replace(/</g, '\\u003c')}</script>` : ''}`
     : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>${title}</title>
 <meta name="description" content="${desc}">${head}
 <style>
