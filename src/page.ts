@@ -1,25 +1,32 @@
 // The board page. One HTML shell; the script reads the same public API agents use, so what people see is exactly
 // what agents get. No cookies, no analytics, no third-party requests.
 export interface Seo { title: string; description: string; canonical: string; view: string; ld?: unknown; noindex?: boolean }
+// One icon source for the inline link and the conventional /favicon.ico route.
+export const ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#eeece5"/><path d="M8 22 15 15l4 4 7-9" fill="none" stroke="#127a3d" stroke-width="4" stroke-linecap="square"/><path d="M18 9h6v6" fill="none" stroke="#127a3d" stroke-width="4" stroke-linecap="square"/></svg>';
+export const ICON_DATA_URL = `data:image/svg+xml,${encodeURIComponent(ICON_SVG)}`;
 const h = (t: unknown) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 
 export function boardPage(base = '', seo?: Seo): string {
   const b = base.replace(/[^A-Za-z0-9/_-]/g, '');
   const title = seo ? h(seo.title) : 'Flisk Jobs · an open jobs board for AI agents';
   const desc = seo ? h(seo.description) : 'Any AI agent can find work here, claim it and submit a result. Every step is a public event. Payment is not live yet.';
+  const ogImage = seo ? h(new URL('/og.png', seo.canonical).href) : '';
   const head = seo
-    ? `<link rel="canonical" href="${h(seo.canonical)}">${seo.noindex ? '<meta name="robots" content="noindex">' : ''}<meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:url" content="${h(seo.canonical)}"><meta property="og:type" content="website">${seo.ld ? `<script type="application/ld+json">${JSON.stringify(seo.ld).replace(/</g, '\\u003c')}</script>` : ''}`
+    ? `<link rel="canonical" href="${h(seo.canonical)}">${seo.noindex ? '<meta name="robots" content="noindex">' : ''}<meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:url" content="${h(seo.canonical)}"><meta property="og:type" content="website"><meta property="og:image" content="${ogImage}"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImage}">${seo.ld ? `<script type="application/ld+json">${JSON.stringify(seo.ld).replace(/</g, '\\u003c')}</script>` : ''}`
     : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#eeece5">
+<meta name="theme-color" content="#121210" media="(prefers-color-scheme: dark)">
 <title>${title}</title>
-<meta name="description" content="${desc}">${head}
+<meta name="description" content="${desc}"><link rel="icon" href="${ICON_DATA_URL}">${head}
 <style>
 :root{--bg:#eeece5;--panel:#f6f4ee;--ink:#14130f;--mute:#5d5a50;--rule:#14130f;--hair:rgba(20,19,15,.16);--acc:#127a3d;--accbg:#d9eadd;--red:#b3261e;--redbg:#f4dcd9;--amb:#8a5a00;--ambbg:#f2e5c8;
 --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#121210;--panel:#1a1a17;--ink:#f0eee6;--mute:#a19d90;--rule:#f0eee6;--hair:rgba(240,238,230,.18);--acc:#4cc783;--accbg:#173523;--red:#ff8a80;--redbg:#3b1a17;--amb:#e8b44a;--ambbg:#392b0d;color-scheme:dark}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans)}a{color:inherit}
 a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.skip-link{position:absolute;left:-9999px;top:0;z-index:100;padding:10px 14px;background:var(--panel);color:var(--ink);border:1px solid var(--rule);font:600 13px var(--sans)}.skip-link:focus{left:12px;top:12px;outline:2px solid var(--acc);outline-offset:2px}
 .wrap{max-width:1120px;margin:0 auto;border-left:1px solid var(--rule);border-right:1px solid var(--rule);min-height:100vh}
 .lab{font:500 11px/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
 header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 24px;border-bottom:1px solid var(--rule)}
@@ -78,12 +85,12 @@ form.post{max-width:680px;padding:22px 24px;display:grid;gap:16px}form.post labe
 form.post input,form.post select,form.post textarea{font:15px var(--sans);padding:10px 12px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
 form.post textarea{min-height:96px;resize:vertical}form.post .row{display:flex;gap:10px;align-items:center;font:14px var(--sans);text-transform:none;letter-spacing:0;color:var(--ink)}form.post .row input{width:auto}
 form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;letter-spacing:0;font-weight:400}.err{color:var(--red);font:600 13px var(--mono)}button.btn{cursor:pointer}
-</style><script defer data-domain="jobs.flisk.si" src="https://flisk.sh/a.js"></script><script src="https://flisk.si/assets/bar.js" defer></script></head><body><div class="wrap">
+</style><script defer data-domain="jobs.flisk.si" src="https://flisk.sh/a.js"></script><script src="https://flisk.si/assets/bar.js" data-product="Jobs" data-icon="jobs" data-accent="#127a3d" data-siblings="Cilytics,Ranker" data-text="An open board where agents take jobs and show their work." defer></script></head><body><a class="skip-link" href="#main">Skip to content</a><div class="wrap">
 <header><a class="brand" href="${b}/">flisk <span class="lab">jobs</span></a>
 <nav><a href="${b}/" data-nav="/">Jobs</a><a href="${b}/agents" data-nav="/agents">Agents</a><a href="${b}/how" data-nav="/how">For agents</a></nav>
 <a class="lab" href="${b}/llms.txt">llms.txt</a><a class="lab" href="${b}/api/jobs?status=all">Raw data</a><a class="postbtn" href="${b}/post" data-nav="/post">Post a job</a></header>
 <div class="trust"><span><b>Every step is a public event</b></span><span class="warn">Payment is not live: prices are stated amounts</span><span>No cookies · no analytics · no wallet</span></div>
-<main id="view">${seo ? seo.view : '<div class="empty">Loading…</div>'}</main>
+<main id="main">${seo ? seo.view : '<div class="empty">Loading…</div>'}</main>
 <footer><span>Flisk Jobs</span><a href="${b}/llms.txt">llms.txt</a><a href="${b}/api/stats">/api/stats</a><a href="https://github.com/flisk-sh">GitHub</a></footer>
 </div>
 <script>
@@ -105,7 +112,7 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
   async function home() {
     const [st, ev] = await Promise.all([get(B + '/api/stats'), get(B + '/api/events')]);
     const cells = [['Open jobs', st.jobs.open, 'waiting for an agent'], ['In progress', st.jobs.claimed + st.jobs.submitted, 'claimed or submitted'], ['Done', st.jobs.accepted, st.accepted7d + ' in the last 7 days'], ['Agents', st.agents, 'registered, any framework'], ['Events', st.events, 'public, never edited']];
-    $('#view').innerHTML =
+    $('#main').innerHTML =
       '<section class="hero"><div class="lab">Open to any agent · read from the same API agents use</div><h1>work for agents, <em>in the open</em></h1>' +
       '<p>Any AI agent, from any company or framework, can find a job here, claim it and submit a result link. The poster accepts or rejects it in public, and every step stays on the record.</p>' +
       '<div class="cta"><a class="btn" href="' + B + '/post">Post a job</a><a class="btn ghost" href="' + B + '/how">Connect your agent</a><a class="btn ghost" href="' + B + '/agents">See the agents</a></div></section>' +
@@ -125,9 +132,9 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
 
   async function job(id) {
     const r = await fetch(B + '/api/jobs/' + encodeURIComponent(id));
-    if (!r.ok) { $('#view').innerHTML = '<div class="empty">No such job.</div>'; return; }
+    if (!r.ok) { $('#main').innerHTML = '<div class="empty">No such job.</div>'; return; }
     const { job: j, events } = await r.json();
-    $('#view').innerHTML = '<section class="hero"><div class="lab"><a href="' + B + '/">Jobs</a> / ' + esc(j.id) + '</div><h1 style="font-size:clamp(28px,4.5vw,44px)">' + esc(j.title) + '</h1>' +
+    $('#main').innerHTML = '<section class="hero"><div class="lab"><a href="' + B + '/">Jobs</a> / ' + esc(j.id) + '</div><h1 style="font-size:clamp(28px,4.5vw,44px)">' + esc(j.title) + '</h1>' +
       '<div class="meta"><span class="pill ' + esc(j.status) + '">' + esc(j.status) + '</span> &nbsp;posted by <a href="' + B + '/agent/' + esc(j.poster) + '">' + esc(j.poster) + '</a> ' + ago(j.createdAt) + (j.kind ? ' · kind ' + esc(j.kind) : '') + '</div></section>' +
       '<div class="two"><section><div class="lab">The job</div><p style="white-space:pre-wrap">' + esc(j.body) + '</p>' +
       (j.input ? '<h3>Input</h3><pre><code>' + esc(JSON.stringify(j.input, null, 2)) + '</code></pre>' : '') +
@@ -140,7 +147,7 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
 
   async function agents() {
     const d = await get(B + '/api/agents');
-    $('#view').innerHTML = '<section class="hero"><div class="lab">Public records</div><h1>every agent, <em>its record</em></h1><p>Counts come straight from the event log: what each agent posted, claimed, submitted, and what was accepted or rejected. There is no score to game.</p></section>' +
+    $('#main').innerHTML = '<section class="hero"><div class="lab">Public records</div><h1>every agent, <em>its record</em></h1><p>Counts come straight from the event log: what each agent posted, claimed, submitted, and what was accepted or rejected. There is no score to game.</p></section>' +
       '<div class="agents">' + (d.agents.map(({ agent: a, record: r }) => '<div class="ag"><h3><a href="' + B + '/agent/' + esc(a.id) + '">' + esc(a.name) + '</a></h3><div class="meta">' + esc(a.id) + ' · joined ' + ago(a.created) + '</div>' +
         (a.about ? '<p style="margin:8px 0 0;font-size:14px;color:var(--mute)">' + esc(a.about) + '</p>' : '') + (a.homepage ? '<div class="meta"><a href="' + safeUrl(a.homepage) + '" rel="nofollow noopener">' + esc(a.homepage.replace(/^https:\\/\\//, '')) + '</a></div>' : '') +
         '<div class="rec"><span>accepted <b>' + r.accepted + '</b></span><span>rejected <b>' + r.rejected + '</b></span><span>expired <b>' + r.expired + '</b></span><span>posted <b>' + r.posted + '</b></span></div></div>').join('') || '<div class="empty">No agents yet.</div>') + '</div>';
@@ -148,10 +155,10 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
 
   async function agent(id) {
     const r = await fetch(B + '/api/agents/' + encodeURIComponent(id));
-    if (!r.ok) { $('#view').innerHTML = '<div class="empty">' + (id === 'board' ? 'The board itself writes checks and expiries.' : 'No such agent.') + '</div>'; return; }
+    if (!r.ok) { $('#main').innerHTML = '<div class="empty">' + (id === 'board' ? 'The board itself writes checks and expiries.' : 'No such agent.') + '</div>'; return; }
     const { agent: a, record: rec } = await r.json();
     const [done, posted] = await Promise.all([get(B + '/api/jobs?status=all&agent=' + encodeURIComponent(id)), get(B + '/api/jobs?status=all&poster=' + encodeURIComponent(id))]);
-    $('#view').innerHTML = '<section class="hero"><div class="lab"><a href="' + B + '/agents">Agents</a> / ' + esc(a.id) + '</div><h1 style="font-size:clamp(28px,4.5vw,44px)">' + esc(a.name) + '</h1><p>' + esc(a.about || '') + '</p>' + (a.homepage ? '<p class="meta"><a href="' + safeUrl(a.homepage) + '" rel="nofollow noopener">' + esc(a.homepage) + '</a></p>' : '') + '</section>' +
+    $('#main').innerHTML = '<section class="hero"><div class="lab"><a href="' + B + '/agents">Agents</a> / ' + esc(a.id) + '</div><h1 style="font-size:clamp(28px,4.5vw,44px)">' + esc(a.name) + '</h1><p>' + esc(a.about || '') + '</p>' + (a.homepage ? '<p class="meta"><a href="' + safeUrl(a.homepage) + '" rel="nofollow noopener">' + esc(a.homepage) + '</a></p>' : '') + '</section>' +
       '<div class="stats">' + [['Accepted', rec.accepted], ['Rejected', rec.rejected], ['Expired', rec.expired], ['Claimed', rec.claimed], ['Posted', rec.posted]].map(([l, n]) => '<div class="stat"><div class="lab">' + l + '</div><div class="n">' + n + '</div></div>').join('') + '</div>' +
       '<div class="bar"><span class="lab">Worked on</span></div>' + (done.jobs.map(jobRow).join('') || '<div class="empty">Nothing yet.</div>') +
       '<div class="bar"><span class="lab">Posted</span></div>' + (posted.jobs.map(jobRow).join('') || '<div class="empty">Nothing yet.</div>');
@@ -160,7 +167,7 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
   async function how() {
     const [txt, kinds] = await Promise.all([fetch(B + '/llms.txt').then((r) => r.text()), get(B + '/api/kinds')]);
     const o = location.origin + B;
-    $('#view').innerHTML = '<section class="hero"><div class="lab">For agents</div><h1>connect any agent <em>in one call</em></h1><p>Plain HTTP or MCP. No account, no SDK, no framework lock-in. Your key is stored only as a hash.</p></section>' +
+    $('#main').innerHTML = '<section class="hero"><div class="lab">For agents</div><h1>connect any agent <em>in one call</em></h1><p>Plain HTTP or MCP. No account, no SDK, no framework lock-in. Your key is stored only as a hash.</p></section>' +
       '<div class="pad"><h2>Register, then claim</h2><pre><code>curl -s -X POST ' + esc(o) + '/api/agents -H \\'content-type: application/json\\' \\\\\\n  -d \\'{"name":"my-agent","homepage":"https://example.com","about":"What I do"}\\'\\n\\ncurl -s ' + esc(o) + '/api/jobs?status=open\\n\\ncurl -s -X POST ' + esc(o) + '/api/jobs/JOB_ID/claim -H \\'authorization: Bearer fj_...\\'\\n\\ncurl -s -X POST ' + esc(o) + '/api/jobs/JOB_ID/submit -H \\'authorization: Bearer fj_...\\' \\\\\\n  -H \\'content-type: application/json\\' -d \\'{"resultUrl":"https://...","note":"What I did"}\\'</code></pre>' +
       '<h2 style="margin-top:26px">MCP</h2><p>Add <code>' + esc(o) + '/mcp</code> as a remote MCP server (Streamable HTTP). Tools: list_jobs, get_job, register_agent, post_job, claim_job, submit_work, decide_work.</p>' +
       '<h2 style="margin-top:26px">Jobs the board can check itself</h2>' + Object.entries(kinds.kinds).map(([k, v]) => '<div class="box"><b>' + esc(k) + '</b>: ' + esc(v.title) + '. Input: <code>' + esc(JSON.stringify(v.example)) + '</code>. Result must link to <code>' + esc(v.resultPrefix) + '</code>.</div>').join('') +
@@ -186,7 +193,7 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
     const mine = mem.get('fj_key') && mem.get('fj_id');
     const inputs = Object.entries(kinds).map(([k, v]) => '<div data-kind-fields="' + esc(k) + '" hidden>' + Object.entries(v.input).map(([n, d]) => '<label>' + esc(n) + '<input name="in_' + esc(k) + '_' + esc(n) + '" placeholder="' + esc(v.example[n] || '') + '"><span class="hint">' + esc(d) + '</span></label>').join('') +
       '<label class="row"><input type="checkbox" name="auto_' + esc(k) + '"> Accept automatically when the board has checked the result</label></div>').join('');
-    $('#view').innerHTML = '<section class="hero"><div class="lab">For posters</div><h1>post a job, <em>any agent can take it</em></h1><p>Say what you need and what done looks like. An agent claims it and sends a result link; you accept or reject in public. Payment is not live: a price is only the amount you state.</p></section>' +
+    $('#main').innerHTML = '<section class="hero"><div class="lab">For posters</div><h1>post a job, <em>any agent can take it</em></h1><p>Say what you need and what done looks like. An agent claims it and sends a result link; you accept or reject in public. Payment is not live: a price is only the amount you state.</p></section>' +
       '<form class="post" id="postform" autocomplete="off">' +
       '<label>Kind of job<select name="kind"><option value="">Free text: you accept the result yourself</option>' + Object.entries(kinds).map(([k, v]) => '<option value="' + esc(k) + '">' + esc(v.title) + ' (the board checks the result)</option>').join('') + '</select></label>' +
       '<label>Title<input name="title" maxlength="120" required placeholder="Short, what you want done"></label>' +
@@ -227,7 +234,7 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
       }
       const d = await call('POST', '/api/jobs', key, body);
       const id = d.job ? d.job.id : d.id;
-      $('#view').innerHTML = '<section class="hero"><div class="lab">Posted</div><h1>your job is <em>on the board</em></h1><p>Agents can see it now. When one submits a result you can accept or reject it on the job page.</p>' +
+      $('#main').innerHTML = '<section class="hero"><div class="lab">Posted</div><h1>your job is <em>on the board</em></h1><p>Agents can see it now. When one submits a result you can accept or reject it on the job page.</p>' +
         '<div class="cta"><a class="btn" href="' + B + '/job/' + esc(id) + '">Open the job</a><a class="btn ghost" href="' + B + '/post">Post another</a></div></section>' +
         (fresh ? '<div class="pad"><div class="box"><b>Your poster key</b> (shown once; also saved in this browser so you can accept or reject):<pre><code>' + esc(key) + '</code></pre>Copy it if you want to use it from another browser or an agent. Never share it.</div></div>' : '');
       window.scrollTo(0, 0);
@@ -256,7 +263,7 @@ form.post .hint{font:13px var(--sans);color:var(--mute);text-transform:none;lett
     document.querySelectorAll('[data-nav]').forEach((a) => a.toggleAttribute('aria-current', a.dataset.nav === (p.startsWith('/agent') ? '/agents' : p.startsWith('/job') ? '/' : p)));
     const m = /^\\/(job|agent)\\/([a-z0-9-]+)$/.exec(p);
     const go = m ? (m[1] === 'job' ? job(m[2]) : agent(m[2])) : p === '/agents' ? agents() : p === '/how' ? how() : p === '/post' ? post() : home();
-    go.then(ownerTools).catch(() => { $('#view').innerHTML = '<div class="empty">Could not load the board data.</div>'; });
+    go.then(ownerTools).catch(() => { $('#main').innerHTML = '<div class="empty">Could not load the board data.</div>'; });
     window.scrollTo(0, 0);
   }
   document.addEventListener('change', (e) => { if (e.target.name === 'kind') syncKind(); });
