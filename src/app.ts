@@ -11,7 +11,7 @@ const SECURITY = {
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'same-origin',
   'x-frame-options': 'DENY',
-  'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://flisk.si https://flisk.sh; img-src 'self' data: https://flisk.si; connect-src 'self' https://analytics.flisk.si; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+  'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://flisk.si https://flisk.sh; img-src 'self' data: https://flisk.si; connect-src 'self' https://analytics.flisk.si; base-uri 'none'; frame-ancestors https://analytics.flisk.si; form-action 'none'",
 };
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type, mcp-session-id', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body, null, 1), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS } });
