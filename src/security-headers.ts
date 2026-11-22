@@ -7,12 +7,12 @@ const BASELINE: Record<string, string> = {
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
 };
 
-// Adds what is missing and never overwrites a header the route set. A CSP gains frame-ancestors 'self' if it has none.
+// Adds what is missing and never overwrites a header the route set. A CSP gains frame-ancestors 'self' https://analytics.flisk.si if it has none.
 export function withSecurityHeaders(res: Response): Response {
   const out = new Response(res.body, res); // headers of some Responses are immutable: copy
   for (const [name, value] of Object.entries(BASELINE)) if (!out.headers.has(name)) out.headers.set(name, value);
   const csp = out.headers.get('content-security-policy');
-  if (csp === null) out.headers.set('content-security-policy', "default-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'");
-  else if (!/frame-ancestors/i.test(csp)) out.headers.set('content-security-policy', `${csp}; frame-ancestors 'self'`);
+  if (csp === null) out.headers.set('content-security-policy', "default-src 'none'; frame-ancestors 'self' https://analytics.flisk.si; base-uri 'none'; form-action 'none'");
+  else if (!/frame-ancestors/i.test(csp)) out.headers.set('content-security-policy', `${csp}; frame-ancestors 'self' https://analytics.flisk.si`);
   return out;
 }

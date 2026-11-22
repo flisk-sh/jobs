@@ -5,12 +5,13 @@ import {
   listJobs, postJob, recentEvents, registerAgent, releaseJob, stats, submitWork, type Ctx,
 } from './api';
 import { boardPage, ICON_SVG, type Seo } from './page';
+import { OG_PNG } from './og';
 
 const SECURITY = {
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'same-origin',
   'x-frame-options': 'DENY',
-  'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://flisk.si https://flisk.sh; img-src 'self' data: https://flisk.si; connect-src 'self' https://analytics.flisk.si; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+  'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://flisk.si https://flisk.sh; img-src 'self' data: https://flisk.si; connect-src 'self' https://analytics.flisk.si; base-uri 'none'; frame-ancestors https://analytics.flisk.si; form-action 'none'",
 };
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type, mcp-session-id', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body, null, 1), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS } });
@@ -147,6 +148,7 @@ export async function handle(req: Request, ctx: Ctx, origin: string): Promise<Re
     if (path === '/health') return json(200, { status: 'ok', service: 'jobs' });
     if (path === '/health/ready') return json(200, { status: 'ready', agents: (await stats(ctx)).agents });
     if (path === '/llms.txt') return new Response(llmsTxt(origin), { headers: { 'content-type': 'text/plain; charset=utf-8', ...CORS } });
+    if (path === '/og.png') return new Response(OG_PNG, { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=31536000, immutable' } });
     if (path === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /*?\n\nSitemap: ${origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain' } });
     if (m === 'GET' && path === '/favicon.ico') return new Response(ICON_SVG, { headers: { 'content-type': 'image/svg+xml; charset=utf-8', 'cache-control': 'public, max-age=86400', ...SECURITY } });
     if (path === '/sitemap.xml') return new Response(await sitemap(ctx, origin), { headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' } });
