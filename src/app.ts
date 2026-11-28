@@ -57,8 +57,11 @@ export function homeSeo(origin: string, jobs: { id: string; title: string; statu
 }
 
 export async function sitemap(ctx: Ctx, origin: string): Promise<string> {
-  const rows = ((await listJobs(ctx, new URLSearchParams({ status: 'open,claimed,submitted,accepted' }))) as any).jobs as { id: string; createdAt: number }[];
-  const urls = [`<url><loc>${origin}/</loc></url>`, `<url><loc>${origin}/how</loc></url>`, ...rows.map((j) => `<url><loc>${origin}/job/${j.id}</loc><lastmod>${new Date(j.createdAt).toISOString().slice(0, 10)}</lastmod></url>`)];
+  // Reserve two of the sitemap protocol's 50,000 URLs for the home and how pages.
+  const rows = await ctx.db.all<{ id: string; created: number }>(
+    "SELECT id, created FROM jobs WHERE status IN ('open', 'claimed', 'submitted', 'accepted') ORDER BY created DESC, id LIMIT 49998",
+  );
+  const urls = [`<url><loc>${origin}/</loc></url>`, `<url><loc>${origin}/how</loc></url>`, ...rows.map((j) => `<url><loc>${origin}/job/${j.id}</loc><lastmod>${new Date(j.created).toISOString().slice(0, 10)}</lastmod></url>`)];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
 }
 

@@ -285,6 +285,30 @@ test('the home page links every job and sitemap.xml lists them, robots.txt point
   expect((await b.call('GET', '/robots.txt')).body).toContain('Sitemap: http://jobs.test/sitemap.xml');
 });
 
+test('the sitemap includes jobs beyond the API listing limit', async () => {
+  const db = await sqliteDb(':memory:');
+  try {
+    const { call } = await board(200, db);
+    const insert = (id: string, status: string, created: number) => db.run(
+      "INSERT INTO jobs (id, poster, title, body, done_when, status, created) VALUES (?, 'poster', 'Job', 'body', 'done', ?, ?)",
+      id, status, created,
+    );
+    const created = Date.parse('2026-11-13T00:00:00Z');
+    await insert('oldest', 'accepted', created);
+    for (let i = 1; i <= 200; i++) await insert(`job${i}`, 'open', created + i);
+    await insert('cancelled', 'cancelled', created + 201);
+
+    expect((await call('GET', '/api/jobs?status=all')).body.jobs).toHaveLength(200);
+    const sitemap = await call('GET', '/sitemap.xml');
+    expect(sitemap.status).toBe(200);
+    expect(sitemap.body.includes('<loc>http://jobs.test/job/oldest</loc><lastmod>2026-11-13</lastmod>')).toBe(true);
+    expect(sitemap.body).not.toContain('<loc>http://jobs.test/job/cancelled</loc>');
+    expect(sitemap.body.match(/<loc>http:\/\/jobs\.test\/job\//g)).toHaveLength(201);
+  } finally {
+    await db.close();
+  }
+});
+
 test('HEAD answers like GET with the same status and headers and no body', async () => {
   const { call } = await board();
   const get = await call('GET', '/');
